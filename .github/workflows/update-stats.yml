@@ -1,0 +1,38 @@
+name: Update GitHub Stats
+
+on:
+  schedule:
+    - cron: "0 0 * * *"   # daily
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate GitHub Stats
+        uses: anuraghazra/github-readme-stats@master
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: rm-muzammil
+          OUTPUT_PATH: stats/github-stats.svg
+
+      - name: Generate Streak Stats
+        run: |
+          curl "https://github-readme-streak-stats.herokuapp.com/?user=rm-muzammil&theme=dark" \
+          -o stats/streak.svg
+
+      - name: Generate Top Languages
+        run: |
+          curl "https://github-readme-stats.vercel.app/api/top-langs/?username=rm-muzammil&layout=compact&theme=dark" \
+          -o stats/languages.svg
+
+      - name: Commit and Push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add stats/
+          git commit -m "Update GitHub stats" || exit 0
+          git push
